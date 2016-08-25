@@ -1,4 +1,5 @@
 import random
+from QLearner import QLearner
 from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
@@ -12,6 +13,13 @@ class LearningAgent(Agent):
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # TODO: Initialize any additional variables here
+        self.steps_count = 0
+        self.QTable = QLearner(actions=Environment.valid_actions)
+        self.previous = {
+            'action': None,
+            'reward': None,
+            'state': None
+        }
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
@@ -24,15 +32,28 @@ class LearningAgent(Agent):
         deadline = self.env.get_deadline(self)
 
         # TODO: Update state
-        self.state = (inputs, self.next_waypoint, deadline)
+        self.state = (
+            ('directions', self.next_waypoint),
+            ('deadline', deadline),
+            ('light', inputs['light']),
+            ('oncoming', inputs['oncoming']),
+            ('right', inputs['right'])
+        )
 
-        # TODO: Select action according to your policy
-        action = randomChoice(Environment.valid_actions) # selection an action randomly
+        # Select action according to your policy
+        action = self.QTable.next_action(state=self.state)
 
         # Execute action and get reward
         reward = self.env.act(self, action)
 
-        # TODO: Learn policy based on state, action, reward
+        # Learn policy based on state, action, reward
+        self.QTable.update(state=self.state, previous=self.previous, steps_count=self.steps_count)
+
+        # Store actions, state and reward as previous_ for use in the next cycle
+        self.previous['state'] = self.state
+        self.previous['action'] = action
+        self.previous['reward'] = reward
+        self.steps_count += 1
 
         print "State: {}".format(self.state)
         print "------"

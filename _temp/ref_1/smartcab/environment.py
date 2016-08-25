@@ -29,12 +29,8 @@ class Environment(object):
     valid_actions = [None, 'forward', 'left', 'right']
     valid_inputs = {'light': TrafficLight.valid_states, 'oncoming': valid_actions, 'left': valid_actions, 'right': valid_actions}
     valid_headings = [(1, 0), (0, -1), (-1, 0), (0, 1)]  # ENWS
-    hard_time_limit = -100  # even if enforce_deadline is False, end trial when deadline reaches this value (to avoid deadlocks)
 
-    def __init__(self, num_dummies=3):
-        self.num_dummies = num_dummies  # no. of dummy agents
-
-        # Initialize simulation variables
+    def __init__(self):
         self.done = False
         self.t = 0
         self.agent_states = OrderedDict()
@@ -58,12 +54,13 @@ class Environment(object):
                     self.roads.append((a, b))
 
         # Dummy agents
+        self.num_dummies = 3  # no. of dummy agents
         for i in xrange(self.num_dummies):
             self.create_agent(DummyAgent)
 
-        # Primary agent and associated parameters
+        # Primary agent
         self.primary_agent = None  # to be set explicitly
-        self.enforce_deadline = True
+        self.enforce_deadline = False
 
     def create_agent(self, agent_class, *args, **kwargs):
         agent = agent_class(self, *args, **kwargs)
@@ -115,20 +112,12 @@ class Environment(object):
         for agent in self.agent_states.iterkeys():
             agent.update(self.t)
 
-        if self.done:
-            return  # primary agent might have reached destination
-
-        if self.primary_agent is not None:
-            agent_deadline = self.agent_states[self.primary_agent]['deadline']
-            if agent_deadline <= self.hard_time_limit:
-                self.done = True
-                print "Environment.step(): Primary agent hit hard time limit ({})! Trial aborted.".format(self.hard_time_limit)
-            elif self.enforce_deadline and agent_deadline <= 0:
-                self.done = True
-                print "Environment.step(): Primary agent ran out of time! Trial aborted."
-            self.agent_states[self.primary_agent]['deadline'] = agent_deadline - 1
-
         self.t += 1
+        if self.primary_agent is not None:
+            if self.enforce_deadline and self.agent_states[self.primary_agent]['deadline'] <= 0:
+                self.done = True
+                print "Environment.reset(): Primary agent could not reach destination within deadline!"
+            self.agent_states[self.primary_agent]['deadline'] -= 1
 
     def sense(self, agent):
         assert agent in self.agent_states, "Unknown agent!"
@@ -156,7 +145,7 @@ class Environment(object):
                 if left != 'forward':  # we don't want to override left == 'forward'
                     left = other_heading
 
-        return {'light': light, 'oncoming': oncoming, 'left': left, 'right': right}
+        return {'light': light, 'oncoming': oncoming, 'left': left, 'right': right}  # TODO: make this a namedtuple
 
     def get_deadline(self, agent):
         return self.agent_states[agent]['deadline'] if agent is self.primary_agent else None
@@ -169,7 +158,6 @@ class Environment(object):
         location = state['location']
         heading = state['heading']
         light = 'green' if (self.intersections[location].state and heading[1] != 0) or ((not self.intersections[location].state) and heading[0] != 0) else 'red'
-        inputs = self.sense(agent)
 
         # Move agent if within bounds and obeys traffic rules
         reward = 0  # reward/penalty
@@ -178,32 +166,25 @@ class Environment(object):
             if light != 'green':
                 move_okay = False
         elif action == 'left':
-            if light == 'green' and (inputs['oncoming'] == None or inputs['oncoming'] == 'left'):
+            if light == 'green':
                 heading = (heading[1], -heading[0])
             else:
                 move_okay = False
         elif action == 'right':
-            if light == 'green' or inputs['left'] != 'forward':
-                heading = (-heading[1], heading[0])
-            else:
-                move_okay = False
+            heading = (-heading[1], heading[0])
 
-        if move_okay:
-            # Valid move (could be null)
-            if action is not None:
-                # Valid non-null move
+        if action is not None:
+            if move_okay:
                 location = ((location[0] + heading[0] - self.bounds[0]) % (self.bounds[2] - self.bounds[0] + 1) + self.bounds[0],
                             (location[1] + heading[1] - self.bounds[1]) % (self.bounds[3] - self.bounds[1] + 1) + self.bounds[1])  # wrap-around
                 #if self.bounds[0] <= location[0] <= self.bounds[2] and self.bounds[1] <= location[1] <= self.bounds[3]:  # bounded
                 state['location'] = location
                 state['heading'] = heading
-                reward = 2.0 if action == agent.get_next_waypoint() else -0.5  # valid, but is it correct? (as per waypoint)
+                reward = 2 if action == agent.get_next_waypoint() else 0.5
             else:
-                # Valid null move
-                reward = 0.0
+                reward = -1
         else:
-            # Invalid move
-            reward = -1.0
+            reward = 1
 
         if agent is self.primary_agent:
             if state['location'] == state['destination']:
