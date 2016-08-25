@@ -1,20 +1,14 @@
+
 # Project 4: Reinforcement Learning
+
 ## Train a Smartcab How to Drive
 
-### Install
+__Question 1:__ Observe what you see with the agent's behaviour as it takes random actions. Does the SmartCab eventually make it to the destination? Are there any other interesting observations to note?
 
-This project requires **Python 2.7** with the [pygame](https://www.pygame.org/wiki/GettingStarted
-) library installed
+__Answer:__
 
-### Code
+As the agent takes actions with total disregard of its environment, it constantly receives negative rewards but fails to reach it's final destination.
 
-Template code is provided in the `smartcab/agent.py` python file. Additional supporting python code can be found in `smartcab/enviroment.py`, `smartcab/planner.py`, and `smartcab/simulator.py`. Supporting images for the graphical user interface can be found in the `images` folder. While some code has already been implemented to get you started, you will need to implement additional functionality for the `LearningAgent` class in `agent.py` when requested to successfully complete the project. 
+By doing three different trails, we observe that the agent keeps running out of time without reaching the destination.
 
-### Run
-
-In a terminal or command window, navigate to the top-level project directory `smartcab/` (that contains this README) and run one of the following commands:
-
-```python smartcab/agent.py```  
-```python -m smartcab.agent```
-
-This will run the `agent.py` file and execute your agent code.
+_Aside:_ We could argue (as food for thought) that given an infinite amount of time in a limited space / environment where the agent can arrive to the destination from any point in that environment, then it would be able to eventually finish.

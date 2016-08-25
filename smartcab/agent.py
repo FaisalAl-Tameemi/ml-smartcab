@@ -2,6 +2,7 @@ import random
 from environment import Agent, Environment
 from planner import RoutePlanner
 from simulator import Simulator
+from random import choice as randomChoice
 
 class LearningAgent(Agent):
     """An agent that learns to drive in the smartcab world."""
@@ -23,16 +24,21 @@ class LearningAgent(Agent):
         deadline = self.env.get_deadline(self)
 
         # TODO: Update state
-        
+        self.state = (inputs, self.next_waypoint, deadline)
+
         # TODO: Select action according to your policy
-        action = None
+        action = randomChoice(Environment.valid_actions) # selection an action randomly
 
         # Execute action and get reward
         reward = self.env.act(self, action)
 
         # TODO: Learn policy based on state, action, reward
 
-        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}".format(deadline, inputs, action, reward)  # [debug]
+        print "State: {}".format(self.state)
+        print "------"
+        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}" \
+                .format(deadline, inputs, action, reward)  # [debug]
+        print "------------------------------"
 
 
 def run():
