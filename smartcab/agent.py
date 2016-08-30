@@ -15,15 +15,13 @@ class LearningAgent(Agent):
         # TODO: Initialize any additional variables here
         self.steps_count = 0
         self.QTable = QLearner(actions=Environment.valid_actions)
-        self.previous = {
-            'action': None,
-            'reward': None,
-            'state': None
-        }
+        self.previous = {'action': None, 'reward': None, 'state': None}
 
     def reset(self, destination=None):
         self.planner.route_to(destination)
-        # TODO: Prepare for a new trip; reset any variables here, if required
+        # Prepare for a new trip; reset any variables here, if required
+        self.previous = {'action': None, 'reward': None, 'state': None}
+        self.steps_count = 0
 
     def update(self, t):
         # Gather inputs
@@ -31,10 +29,9 @@ class LearningAgent(Agent):
         inputs = self.env.sense(self)
         deadline = self.env.get_deadline(self)
 
-        # TODO: Update state
+        # Update the current state
         self.state = (
             ('directions', self.next_waypoint),
-            ('deadline', deadline),
             ('light', inputs['light']),
             ('oncoming', inputs['oncoming']),
             ('right', inputs['right'])
@@ -46,20 +43,20 @@ class LearningAgent(Agent):
         # Execute action and get reward
         reward = self.env.act(self, action)
 
-        # Learn policy based on state, action, reward
+        # Update the Q value // Learn policy based on state, action, reward
         self.QTable.update(state=self.state, previous=self.previous, steps_count=self.steps_count)
 
-        # Store actions, state and reward as previous_ for use in the next cycle
+        # Store actions, state and reward as previous for use in the next cycle
         self.previous['state'] = self.state
         self.previous['action'] = action
         self.previous['reward'] = reward
         self.steps_count += 1
 
-        print "State: {}".format(self.state)
-        print "------"
-        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}" \
-                .format(deadline, inputs, action, reward)  # [debug]
-        print "------------------------------"
+        # print "State: {}".format(self.state)
+        # print "------"
+        # print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}" \
+        #         .format(deadline, inputs, action, reward)  # [debug]
+        # print "------------------------------"
 
 
 def run():

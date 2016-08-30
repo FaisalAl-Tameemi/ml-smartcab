@@ -48,10 +48,10 @@ class LearningAgent(Agent):
         self.lesson_counter += 1  #count steps in total run
 
         #Define the current state based on inputs sensed
-        self.state = (  ("directions",self.next_waypoint),
-                        ("light",inputs['light']),
-                        ("oncoming", inputs['oncoming']),
-                        ("left",inputs['left']))
+        self.state = (("directions",self.next_waypoint),
+                      ("light",inputs['light']),
+                      ("oncoming", inputs['oncoming']),
+                      ("left",inputs['left']))
 
         # TODO: Select action according to your policy
         Qtable = self.Qtable #cover up Qtable variable with current object.Qtable feature to make syntax easier in this suite

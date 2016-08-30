@@ -1,8 +1,10 @@
 import time
 import random
+import csv
 from collections import OrderedDict
 
 from simulator import Simulator
+
 
 class TrafficLight(object):
     """A traffic light that switches periodically."""
@@ -39,6 +41,8 @@ class Environment(object):
         self.t = 0
         self.agent_states = OrderedDict()
         self.status_text = ""
+
+        self.current_deadline = 0
 
         # Road network
         self.grid_size = (8, 6)  # (cols, rows)
@@ -93,6 +97,7 @@ class Environment(object):
 
         start_heading = random.choice(self.valid_headings)
         deadline = self.compute_dist(start, destination) * 5
+        self.current_deadline = deadline
         print "Environment.reset(): Trial set up with start = {}, destination = {}, deadline = {}".format(start, destination, deadline)
 
         # Initialize agent(s)
@@ -126,6 +131,7 @@ class Environment(object):
             elif self.enforce_deadline and agent_deadline <= 0:
                 self.done = True
                 print "Environment.step(): Primary agent ran out of time! Trial aborted."
+                self.write_state_to_csv(agent, False)
             self.agent_states[self.primary_agent]['deadline'] = agent_deadline - 1
 
         self.t += 1
@@ -211,6 +217,7 @@ class Environment(object):
                     reward += 10  # bonus
                 self.done = True
                 print "Environment.act(): Primary agent has reached destination!"  # [debug]
+                self.write_state_to_csv(agent, True)
             self.status_text = "state: {}\naction: {}\nreward: {}".format(agent.get_state(), action, reward)
             #print "Environment.act() [POST]: location: {}, heading: {}, action: {}, reward: {}".format(location, heading, action, reward)  # [debug]
 
@@ -219,6 +226,14 @@ class Environment(object):
     def compute_dist(self, a, b):
         """L1 distance between two points."""
         return abs(b[0] - a[0]) + abs(b[1] - a[1])
+
+    def write_state_to_csv(self, agent, has_reached):
+        """Write a line to the output CSV file"""
+        output_file = open('output.csv', 'a')
+        state = self.agent_states[agent]
+        writer = csv.writer(output_file)
+        writer.writerow((state['destination'], self.current_deadline, has_reached))
+        output_file.close()
 
 
 class Agent(object):
