@@ -52,8 +52,6 @@ class LearningAgent(Agent):
         self.previous['reward'] = reward
         self.steps_count += 1
 
-        # print "State: {}".format(self.state)
-        # print "------"
         # print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}" \
         #         .format(deadline, inputs, action, reward)  # [debug]
         # print "------------------------------"
@@ -69,7 +67,7 @@ def run():
     # NOTE: You can set enforce_deadline=False while debugging to allow longer trials
 
     # Now simulate it
-    sim = Simulator(e, update_delay=0.5, display=True)  # create simulator (uses pygame when display=True, if available)
+    sim = Simulator(e, update_delay=0.5, display=False)  # create simulator (uses pygame when display=True, if available)
     # NOTE: To speed up simulation, reduce update_delay and/or set display=False
 
     sim.run(n_trials=100)  # run for a specified number of trials

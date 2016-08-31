@@ -1,43 +1,40 @@
 import random
 
 class QLearner():
-    """A QTable Implementation"""
+    """A QLearner Implementation"""
 
     def __init__(self, actions, Q_init=2, gamma=0.8):
         self.ACTIONS = actions
         self.QTable = {}
-        self.Q_init = Q_init  #initial Q^ values for new state-actions not observed yet.
-        self.gamma = gamma  #discounting rate of future rewards
-        # self.epsilon = 0.75 + (0.24 / (1+( math.exp(-0.1*(self.learn_count-40)))))
-        # self.alpha = 1 - ( 0.5 / (1 + math.exp(-0.05*(self.learn_count-100)))) #alpha ranges from 1 to 0.5
-        self.epsilon = 0.5
-        self.alpha = 0.5
+        self.Q_init = Q_init # initial `Q_hat` value arbitrarily
+        self.gamma = gamma # discounting rate
+        self.epsilon = 0.5 # exploration rate
+        self.alpha = 0.5 # learning rate
 
 
     def next_action(self, state):
-        if self.QTable.has_key(state):  #check if state has been encountered before or not
-            # If epsilon is not eclipsed by a random float, then choose the action with the largest Q^.
-            # If epsilon is 1, then best option is always chosen as it cannot be eclipsed
-            if random.random() < self.epsilon :
-                # pull the best action, or best actions if there are more than one with a max Q^ value
-                argmax_actions = {action:Qhat for action, Qhat in self.QTable[state].items() \
-                                    if Qhat == max(self.QTable[state].values())}
-                # note if only 1 action in this list, then it is only choice for random.choice
-                return random.choice(argmax_actions.keys())
-            else: # if random float eclipses epsilon, choose a random action.
+        if self.QTable.has_key(state):  # is this a state familiar (we've seen it before)
+            if random.random() < self.epsilon:
+                # get the action of max reward
+                max_reward_actions = [ action for action, Q_hat in self.QTable[state].items() \
+                                        if Q_hat == max(self.QTable[state].values()) ]
+                # choose randomly if more than 1 argmax action
+                return random.choice(max_reward_actions)
+            else:
                 return random.choice(self.ACTIONS)
-        else:  #state has never been encountered
-            #Add state to Qtable dictionary
+        else:
+            # log the state into our QTable
             self.QTable.update({
                 state: {None: self.Q_init, 'forward': self.Q_init, 'left': self.Q_init, 'right': self.Q_init}
             })
-            #choose one of the actions at random
+            # then choose a random action
+            # TODO: update this to follow driving rules
             return random.choice(self.ACTIONS)
 
 
     def update(self, state, previous, steps_count):
         Qtable = self.QTable
-        if steps_count > 0 :  #make sure it is not the first step in a trial.
+        if steps_count > 0:
             Q_hat = Qtable[previous['state']][previous['action']]
             Q_hat = Q_hat + (self.alpha * (previous['reward'] + \
                                 (self.gamma * (max(Qtable[state].values()))) - Q_hat))
