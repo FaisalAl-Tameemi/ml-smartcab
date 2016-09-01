@@ -12,9 +12,9 @@ class LearningAgent(Agent):
         super(LearningAgent, self).__init__(env)  # sets self.env = env, state = None, next_waypoint = None, and a default color
         self.color = 'red'  # override color
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
-        # TODO: Initialize any additional variables here
+        # Initialize any additional variables here
         self.steps_count = 0
-        self.QTable = QLearner(actions=Environment.valid_actions)
+        self.QTable = QLearner(actions=Environment.valid_actions, gamma=0.4, epsilon=0.85, alpha=0.75)
         self.previous = {'action': None, 'reward': None, 'state': None}
 
     def reset(self, destination=None):
@@ -25,7 +25,7 @@ class LearningAgent(Agent):
 
     def update(self, t):
         # Gather inputs
-        self.next_waypoint = self.planner.next_waypoint()  # from route planner, also displayed by simulator
+        self.next_waypoint = self.planner.next_waypoint() # from route planner
         inputs = self.env.sense(self)
         deadline = self.env.get_deadline(self)
 
@@ -34,7 +34,6 @@ class LearningAgent(Agent):
             ('directions', self.next_waypoint),
             ('light', inputs['light']),
             ('oncoming', inputs['oncoming']),
-            ('right', inputs['right'])
         )
 
         # Select action according to your policy
@@ -67,7 +66,7 @@ def run():
     # NOTE: You can set enforce_deadline=False while debugging to allow longer trials
 
     # Now simulate it
-    sim = Simulator(e, update_delay=0.5, display=False)  # create simulator (uses pygame when display=True, if available)
+    sim = Simulator(e, update_delay=0.1, display=False)  # create simulator (uses pygame when display=True, if available)
     # NOTE: To speed up simulation, reduce update_delay and/or set display=False
 
     sim.run(n_trials=100)  # run for a specified number of trials

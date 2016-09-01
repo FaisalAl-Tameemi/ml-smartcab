@@ -23,8 +23,13 @@ The current agent randomly takes actions (from a set of 4) with total disregard 
 From this we can infer that our smart(er) agent has to take into account its state and the waypoints within each step of the episode. By following these updated rules, the agent can avoid incurring negative rewards and arrive the destination in a more direct / intelligent way.
 
 
-___TODO: add performance results + graph___
+|   Trips              |   Percentage   |
+|----------------------|:--------------:|
+|   Successful Trips   |       13%      |
+|   Failed Trips       |       87%      |
 
+
+_Note:_ See `outputs/output_3.csv` for the entire list of trials.
 
 ----
 
@@ -53,11 +58,29 @@ _Note:_ This implementation chooses to ignore either `left` or `right` because t
 
 Also, we choose to leave out the `deadline` from the agent's state since it does not effect its policy in any way. If the environment allowed the learner to do actions such as drive faster when deadline is getting closer to 0 or perhaps an extra reward for maximizing the time remaining in a trip, only then would it effect the outcome and we would include it in the state.
 
-Adding more features to the state will add to the learning time so we will chose to ignore features that are not relevant to the agent's policy.
+Adding more features to the state will add to the learning time so we will chose to ignore features that are not relevant to the agent's policy. To this point, we can also choose to ignore cars from both ways (`right` and `left`) since there is no penalty for crashing into other cars.
 
+In technical terms, adding more information to the state with require us to fill out a larger QTable.
 
-___TODO: add performance results + graph___
+Let's have a look at the numbers.
 
+_The Factors:_
+
+A summary of the values of the agent's state is as follows:
+
+- Waypoints: the direction could be 'Left', 'Right' or 'Forward'. (3 possible values).
+- Lights: the traffic lights could either be 'green' or 'red'. (2 possible values).
+- Oncoming: is there oncoming traffic. (2 possible values).
+
+As for the responses the agent can have to its state:
+
+- Actions: the actions the agent can take can be None, 'forward', 'left', 'right'. (4 possible values).
+
+If we multiply each of the following values by each other => `3 x 2 x 4 x 2`, we get __48__. This will constitute all the possible combinations between the state and the actions for our agent to add to its QTable.
+
+Looking into the `Environment` class, we notice that it multiplies the distance by 5. Since the distance is always 1 to 12 steps from the agent to its destination. We conclude that the `deadline` is always between 5 to a maximum of 60 (56 possible values).
+
+If we multiply the deadlines possible values => `48 x 56`, we get __2,688__ combinations of state to actions which the agent needs to train for. Note that we can decrease this number to half (__1,344__) by dropping `oncoming` from the state if our environment does not penalize crashes between cars.
 
 ----
 
@@ -68,7 +91,27 @@ ___TODO: add performance results + graph___
 
 > QUESTION: What changes do you notice in the agent's behavior when compared to the basic driving agent when random actions were always taken? Why is this behavior occurring?
 
-...
+To implement a QTable for the current smartcab agent, a `QLearner` class was created. An instance `QLearner` class is then instantiated by the agent upon starting. The QTable initializes all values to 1 (arbitrarily chosen).
+
+Once a QTable is created, the agent tries to maximize its reward by picking the action with the highest Q value for that state. This however only works when the state the agent is at has been previously encountered. Otherwise, a random action is picked (from the 4 possible actions).
+
+Along with the newly implemented `QLearner`, the current implementation sets the following parameters:
+- Number of trials is set to __100__
+- The `enforce_deadline` is set to __True__
+- The initial Q value for all actions at a new state, `Q_init` is set to __1__
+- The discounting rate, `gamma`, is set to __0.5__
+- The learning rate, `alpha`, is set to __0.5__
+- The exploration rate, `epsilon`, is set to __0.5__
+
+
+The results (see `outputs/output_5.csv`) of the current implementation are below:
+
+|   Trips              |   Percentage   |
+|----------------------|:--------------:|
+|   Successful Trips   |       60%      |
+|   Failed Trips       |       40%      |
+
+Since the values of `gamma`, `alpha` and `epsilon` are not optimized, we can conclude these values need to be changed in order to achieve a higher success rate.
 
 ----
 
@@ -88,4 +131,25 @@ This task is complete once you have arrived at what you determine is the best co
 
 > QUESTION: Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties? How would you describe an optimal policy for this problem?
 
-...
+
+In this sections, we will discuss how we can optimize the values following values for the agent to get closer to finding the optimal policy. For example, `epsilon` is the exploration rate, a higher value indicates less randomness in response to states the agent has already seen.
+
+Below is a table of the 3 main learning values (`epsilon`, `alpha` and `gamma`) and their respective successful trips percentage once we have set the `update_delay` value to 0.1:
+
+
+|   Experiment #       |   Percentage Success   | alpha | epsilon | gamma | Q_init |
+|----------------------|:----------------------:|------:|--------:|------:|-------:|
+|   1                  |       64%              |  0.5  |   0.5   |  0.5  |  2     |
+|   2                  |       57%              |  0.5  |   0.5   |  0.8  |  2     |
+|   3                  |       65%              |  0.5  |   0.5   |  0.25 |  2     |
+|   4                  |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
+|   5                  |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
+|   6                  |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
+|   7                  |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
+|   8                  |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
+|   9                  |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
+|   10                 |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
+
+During the first experiment, we set `alpha`, `gamma` and `epsilon` are to 0.5 arbitrarily as an exploratory step to set a benchmark with our Q-Learning implementation.
+
+In __experiment #2__ above, we notice that having a higher `gamma` value causes a drop in rate of successful trips for the agent.
