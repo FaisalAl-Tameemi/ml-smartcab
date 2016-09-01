@@ -53,7 +53,7 @@ class QLearner():
         experience about the environment.
         """
         if steps_count > 0:
-            Q_hat = self.Qtable[previous['state']][previous['action']]
+            Q_hat = self.QTable[previous['state']][previous['action']]
             Q_hat = Q_hat + (self.alpha * (previous['reward'] + \
-                                (self.gamma * (max(self.Qtable[state].values()))) - Q_hat))
-            self.Qtable[previous['state']][previous['action']] = Q_hat
+                                (self.gamma * (max(self.QTable[state].values()))) - Q_hat))
+            self.QTable[previous['state']][previous['action']] = Q_hat

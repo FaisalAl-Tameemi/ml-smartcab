@@ -142,14 +142,17 @@ Below is a table of the 3 main learning values (`epsilon`, `alpha` and `gamma`) 
 |   1                  |       64%              |  0.5  |   0.5   |  0.5  |  2     |
 |   2                  |       57%              |  0.5  |   0.5   |  0.8  |  2     |
 |   3                  |       65%              |  0.5  |   0.5   |  0.25 |  2     |
-|   4                  |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
-|   5                  |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
-|   6                  |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
-|   7                  |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
-|   8                  |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
-|   9                  |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
-|   10                 |       00%              |  0.0  |   0.0   |  0.0  |  0.0   |
+|   4                  |       71%              |  0.75 |   0.5   |  0.25 |  2     |
+|   5                  |       86%              |  0.75 |   0.75  |  0.25 |  2     |
+|   6                  |       91%              |  0.75 |   0.85  |  0.5  |  2     |
+|   7                  |       95%              |  0.75 |   0.85  |  0.4  |  2     |
 
 During the first experiment, we set `alpha`, `gamma` and `epsilon` are to 0.5 arbitrarily as an exploratory step to set a benchmark with our Q-Learning implementation.
 
-In __experiment #2__ above, we notice that having a higher `gamma` value causes a drop in rate of successful trips for the agent.
+In __experiment #2__ above (see `outputs/output_9.csv`), we notice that having a higher `gamma` value causes a drop in rate of successful trips for the agent.
+
+In __experiment #4__ (see `outputs/output_11.csv`), we set the learning rate, `alpha`, to 0.75 while setting `gamma` to 0.25 and we see an increase in our success rate. We could argue that this is due to our environment being predictable, i.e. the agent can repeat previously rewarding actions at a given state without having to consider possibly changing environment factors.
+
+In __experiment #5__ (see `outputs/output_12.csv`), we increase the predictability of how the agent will behave given that it has experienced this state previously by increasing `epsilon`. We note that achieve 86% success rate in this experiment.
+
+We then keep changing those 3 variables until we converge to a success rate that is higher than 90% which we can consider acceptable for our learning agent. The final values are see above in __experiment #7__ (see `outputs/output_15.csv`).

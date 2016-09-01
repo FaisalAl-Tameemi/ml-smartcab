@@ -14,7 +14,7 @@ class LearningAgent(Agent):
         self.planner = RoutePlanner(self.env, self)  # simple route planner to get next_waypoint
         # Initialize any additional variables here
         self.steps_count = 0
-        self.QTable = QLearner(actions=Environment.valid_actions, gamma=0.4, epsilon=0.85, alpha=0.75)
+        self.QTable = QLearner(actions=Environment.valid_actions, gamma=0.35, epsilon=0.85, alpha=0.75)
         self.previous = {'action': None, 'reward': None, 'state': None}
 
     def reset(self, destination=None):

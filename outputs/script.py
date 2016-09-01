@@ -2,7 +2,7 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import sys
 
-file_name = sys.argv[1] if len(sys.argv) > 1 else 'output_8'
+file_name = sys.argv[1] if len(sys.argv) > 1 else 'output'
 
 print "About to read {}".format(file_name)
 data = pd.read_csv('outputs/{}.csv'.format(file_name))
