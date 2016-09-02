@@ -142,9 +142,6 @@ This task is complete once you have arrived at what you determine is the best co
 
 > QUESTION: Report the different values for the parameters tuned in your basic implementation of Q-Learning. For which set of parameters does the agent perform best? How well does the final driving agent perform?
 
-> QUESTION: Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties? How would you describe an optimal policy for this problem?
-
-
 In this sections, we will discuss how we can optimize the values following values for the agent to get closer to finding the optimal policy. For example, `epsilon` is the exploration rate, a higher value indicates less randomness in response to states the agent has already seen.
 
 Below is a table of the 3 main learning values (`epsilon`, `alpha` and `gamma`) and their respective successful trips percentage once we have set the `update_delay` value to 0.1:
@@ -169,3 +166,17 @@ In __experiment #4__ (see `outputs/output_11.csv`), we set the learning rate, `a
 In __experiment #5__ (see `outputs/output_12.csv`), we increase the predictability of how the agent will behave given that it has experienced this state previously by increasing `epsilon`. We note that achieve 86% success rate in this experiment.
 
 We then keep changing those 3 variables until we converge to a success rate that is higher than 90% which we can consider acceptable for our learning agent. The final values are see above in __experiment #7__ (see `outputs/output_15.csv`).
+
+
+> QUESTION: Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties? How would you describe an optimal policy for this problem?
+
+Before answer the question directly, let's discuss the meaning of an optimal policy for the current environment.
+
+From the responses above, we can conclude that our __current environment does not care if the agent arrives with 1 step left in the `deadline` or 10 or 12__. This means that although having more steps remaining in the `deadline` is logically a better policy, it actually has no effect on the performance of the policy since the reward for arriving is always 12.
+
+The optimal policy for this problem can be outlined by an agent's policy which ensures the following:
+
+- Traffic rules are always obeyed.
+- Planner suggestions are always followed.
+
+While we can get close to the optimal policy, the agent might take certain actions with negative rewards if it hasn't been trained on these states often or at all. For example, since the agent rarely encounters other cars at traffic lights then it might end up taking the wrong actions. Towards to the last trials, the learning agent's QTable contains most states that are important for making the optimal decision.
