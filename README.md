@@ -50,12 +50,12 @@ In the current environment, the givens which we can use to determine the state a
 - The traffic `light`
 - The other cars, including `oncoming` traffic as well as from the `left` and `right`
 
-This implementation of the smart agent will build a state from a subset of that the information above. Namely, `next_waypoint` for directions, `light` for traffic light signal and `right` (or `left`) for sideway traffic, and `deadline`.
+This implementation of the smart agent will build a state from a subset of that the information above. Namely, `next_waypoint` for directions, `light` for traffic light signal and `oncoming` traffic.
 
 
-_Note:_ This implementation chooses to ignore either `left` or `right` because the currently traffic grid system being simulated only allows traffic in one of those directions at a time. Other cars going the other direction would cause an accident or a path change by one of the cars.
+_Note:_ This implementation chooses to ignore `right` and `left` because we can safely assume that other agents (cars) on the grid will follow the driving rules outlined.
 
-Also, we choose to leave out the `deadline` from the agent's state since it does not effect its policy in any way. If the environment allowed the learner to do actions such as drive faster when deadline is getting closer to 0 or perhaps an extra reward for maximizing the time remaining in a trip, only then would it effect the outcome and we would include it in the state.
+Also, we choose to leave out the `deadline` from the agent's state since it does not effect the policy in any way. If the environment allowed the learner to do actions such as drive faster when deadline is getting closer to 0 or perhaps an extra reward for maximizing the time remaining in a trip, only then would it effect the outcome and we would include it in the state.
 
 Adding more features to the state will add to the learning time so we will chose to ignore features that are not relevant to the agent's policy. To this point, we can also choose to ignore cars from both ways (`right` and `left`) since there is no penalty for crashing into other cars.
 
@@ -90,6 +90,14 @@ If we multiply the deadlines possible values => `48 x 56`, we get __2,688__ comb
 
 > QUESTION: What changes do you notice in the agent's behavior when compared to the basic driving agent when random actions were always taken? Why is this behavior occurring?
 
+
+Once we implement a Q-Learning Driving Agent, we notice that it performs much better than taking random actions. We also notice that the agent starts to follow the rules of the road after some trials, while the random agent does not learn from them in any way thus ignores the traffic rules all together.
+
+The Q-Learning agent also starts to follow recommendations from the planner based on previous experiences, this means during later trials, the agent's performance increases. The random agent on the other hand keeps taking actions without learning in any way (i.e. past experiences have no effect on future actions).
+
+
+_About the implementation:_
+
 To implement a QTable for the current smartcab agent, a `QLearner` class was created. An instance `QLearner` class is then instantiated by the agent upon starting. The QTable initializes all values to 1 (arbitrarily chosen).
 
 Once a QTable is created, the agent tries to maximize its reward by picking the action with the highest Q value for that state. This however only works when the state the agent is at has been previously encountered. Otherwise, a random action is picked (from the 4 possible actions).
@@ -111,6 +119,12 @@ The results (see `outputs/output_5.csv`) of the current implementation are below
 |   Failed Trips       |       40%      |
 
 Since the values of `gamma`, `alpha` and `epsilon` are not optimized, we can conclude these values need to be changed in order to achieve a higher success rate.
+
+
+_Update:_
+
+<small>Please note that in this implementation, I've chosen to set `epsilon` as the value of random action NOT taking place which I understand is unusual. For the sake of keeping the results in this report consistent, I will keep the current implementation but I intend to change it in the future.</small>
+
 
 ----
 

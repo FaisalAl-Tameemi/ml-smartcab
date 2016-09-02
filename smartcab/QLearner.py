@@ -13,6 +13,8 @@ class QLearner():
         self.QTable = {}
         self.Q_init = Q_init # initial `Q_hat` value arbitrarily
         self.gamma = gamma # discounting rate
+        # TODO: make epsilon a decaying value as there is no need for it
+        #       in the last 10 trials
         self.epsilon = epsilon # exploration rate
         self.alpha = alpha # learning rate
 
@@ -26,6 +28,8 @@ class QLearner():
         and then take a random action.
         """
         if self.QTable.has_key(state):  # is this a state familiar (we've seen it before)
+            # TODO: change the epsilon implementation to represent the probability
+            #       of a random action instead of the other way around
             if random.random() < self.epsilon:
                 # get the action of max reward
                 max_reward_actions = [ action for action, Q_hat in self.QTable[state].items() \
@@ -40,7 +44,7 @@ class QLearner():
                 state: { None: self.Q_init, 'forward': self.Q_init, \
                         'left': self.Q_init, 'right': self.Q_init }
             })
-            # then choose a random action
+            # then choose a random action since they all have the same Q value
             return random.choice(self.ACTIONS)
 
 

@@ -51,9 +51,15 @@ class LearningAgent(Agent):
         self.previous['reward'] = reward
         self.steps_count += 1
 
-        # print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}" \
-        #         .format(deadline, inputs, action, reward)  # [debug]
-        # print "------------------------------"
+        # Debugging
+        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}" \
+                    .format(deadline, inputs, action, reward)
+        # print "-------------------"
+
+    def log_to_file(self, info):
+        with open("log.txt", "a") as log_file:
+            log_file.write(info)
+            log_file.close()
 
 
 def run():
