@@ -53,7 +53,8 @@ In the current environment, the givens which we can use to determine the state a
 This implementation of the smart agent will build a state from a subset of that the information above. Namely, `next_waypoint` for directions, `light` for traffic light signal and `oncoming` traffic.
 
 
-_Note:_ This implementation chooses to ignore `right` and `left` because we can safely assume that other agents (cars) on the grid will follow the driving rules outlined.
+_Note:_ This implementation chooses to ignore `right` because we can safely assume that other agents (cars) on the grid will follow the driving rules outlined. While ignoring `left` can cause the agent to learn that taking a left turn on a red light is an permitted action, we will assume that ideally this will rarely happen in the current simulation.
+
 
 Also, we choose to leave out the `deadline` from the agent's state since it does not effect the policy in any way. If the environment allowed the learner to do actions such as drive faster when deadline is getting closer to 0 or perhaps an extra reward for maximizing the time remaining in a trip, only then would it effect the outcome and we would include it in the state.
 
@@ -170,7 +171,7 @@ We then keep changing those 3 variables until we converge to a success rate that
 
 > QUESTION: Does your agent get close to finding an optimal policy, i.e. reach the destination in the minimum possible time, and not incur any penalties? How would you describe an optimal policy for this problem?
 
-Before answer the question directly, let's discuss the meaning of an optimal policy for the current environment.
+Before answering the question, let's discuss the meaning of an optimal policy for the current environment.
 
 From the responses above, we can conclude that our __current environment does not care if the agent arrives with 1 step left in the `deadline` or 10 or 12__. This means that although having more steps remaining in the `deadline` is logically a better policy, it actually has no effect on the performance of the policy since the reward for arriving is always 12.
 
@@ -179,4 +180,18 @@ The optimal policy for this problem can be outlined by an agent's policy which e
 - Traffic rules are always obeyed.
 - Planner suggestions are always followed.
 
-While we can get close to the optimal policy, the agent might take certain actions with negative rewards if it hasn't been trained on these states often or at all. For example, since the agent rarely encounters other cars at traffic lights then it might end up taking the wrong actions. Towards to the last trials, the learning agent's QTable contains most states that are important for making the optimal decision.
+While we can get close to the optimal policy, the agent might take certain actions with negative rewards if it hasn't been trained on these states often or at all (see case below from Trial #92). For example, since the agent rarely encounters other cars at traffic lights then it might end up taking the wrong actions, i.e. if a given state hasn't been visited by the agent, then the liklihood that it will take the correct action is lower.
+
+```
+State: (('directions', 'forward'), ('light', 'red'), ('oncoming', None))
+Action: left, Reward: -1.0
+Q-Values: {'forward': -0.7593967550529443, 'right': -0.02401649949720175, None: 0.37886576707623437, 'left': -0.31665649999785694}
+```
+
+Towards to the last trials, the learning agent's QTable contains most states that are important for making the optimal decision. We observe by looking at the same state as the example above being encountered by the agent at a later trial (#93) but it now takes the correct action of stopping at the red light when the action is forward:
+
+```
+State: (('directions', 'forward'), ('light', 'red'), ('oncoming', None))
+Action: None, Reward: 0.0
+Q-Values: {'forward': -0.7593967550529443, 'right': -0.02401649949720175, None: 0.35587676055551043, 'left': -0.7297118611419527}
+```

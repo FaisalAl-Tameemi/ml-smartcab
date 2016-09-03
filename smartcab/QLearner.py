@@ -19,6 +19,10 @@ class QLearner():
         self.alpha = alpha # learning rate
 
 
+    def Q_by_state(self, state):
+        return self.QTable[state]
+
+
     def next_action(self, state):
         """
         Get the next best action according to the policy given a state.

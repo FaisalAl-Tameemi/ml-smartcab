@@ -52,9 +52,10 @@ class LearningAgent(Agent):
         self.steps_count += 1
 
         # Debugging
-        print "LearningAgent.update(): deadline = {}, inputs = {}, action = {}, reward = {}" \
-                    .format(deadline, inputs, action, reward)
-        # print "-------------------"
+        print "State: {}".format(self.state)
+        print "Action: {}, Reward: {}".format(action, reward)
+        print "Q-Values: {}".format(self.QTable.Q_by_state(state=self.state))
+        print "-------------------"
 
     def log_to_file(self, info):
         with open("log.txt", "a") as log_file:
