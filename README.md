@@ -185,7 +185,12 @@ While we can get close to the optimal policy, the agent might take certain actio
 ```
 State: (('directions', 'forward'), ('light', 'red'), ('oncoming', None))
 Action: left, Reward: -1.0
-Q-Values: {'forward': -0.7593967550529443, 'right': -0.02401649949720175, None: 0.37886576707623437, 'left': -0.31665649999785694}
+Updated Q-Values: {
+  'forward': -0.7593967550529443,
+  'right': -0.02401649949720175,
+  None: 0.37886576707623437,
+  'left': -0.31665649999785694
+}
 ```
 
 Towards to the last trials, the learning agent's QTable contains most states that are important for making the optimal decision. We observe by looking at the same state as the example above being encountered by the agent at a later trial (#93) but it now takes the correct action of stopping at the red light when the action is forward:
@@ -193,5 +198,10 @@ Towards to the last trials, the learning agent's QTable contains most states tha
 ```
 State: (('directions', 'forward'), ('light', 'red'), ('oncoming', None))
 Action: None, Reward: 0.0
-Q-Values: {'forward': -0.7593967550529443, 'right': -0.02401649949720175, None: 0.35587676055551043, 'left': -0.7297118611419527}
+Updated Q-Values: {
+  'forward': -0.7593967550529443,
+  'right': -0.02401649949720175,
+  None: 0.35587676055551043,
+  'left': -0.7297118611419527
+}
 ```
