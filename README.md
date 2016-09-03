@@ -183,8 +183,14 @@ The optimal policy for this problem can be outlined by an agent's policy which e
 While we can get close to the optimal policy, the agent might take certain actions with negative rewards if it hasn't been trained on these states often or at all (see case below from Trial #92). For example, since the agent rarely encounters other cars at traffic lights then it might end up taking the wrong actions, i.e. if a given state hasn't been visited by the agent, then the liklihood that it will take the correct action is lower.
 
 ```
-State: (('directions', 'forward'), ('light', 'red'), ('oncoming', None))
+State: (
+  ('directions', 'forward'),
+  ('light', 'red'),
+  ('oncoming', None)
+)
+
 Action: left, Reward: -1.0
+
 Updated Q-Values: {
   'forward': -0.7593967550529443,
   'right': -0.02401649949720175,
@@ -196,8 +202,14 @@ Updated Q-Values: {
 Towards to the last trials, the learning agent's QTable contains most states that are important for making the optimal decision. We observe by looking at the same state as the example above being encountered by the agent at a later trial (#93) but it now takes the correct action of stopping at the red light when the action is forward:
 
 ```
-State: (('directions', 'forward'), ('light', 'red'), ('oncoming', None))
+State: (
+  ('directions', 'forward'),
+  ('light', 'red'),
+  ('oncoming', None)
+)
+
 Action: None, Reward: 0.0
+
 Updated Q-Values: {
   'forward': -0.7593967550529443,
   'right': -0.02401649949720175,
@@ -205,3 +217,5 @@ Updated Q-Values: {
   'left': -0.7297118611419527
 }
 ```
+
+With this, we conclude that our agent is now capable of reaching a near optimal policy but certain improvements can be made such as implementing a decaying `epsilon` value and adding `left` to the state to avoid odd reactions by the agent for rare states.
