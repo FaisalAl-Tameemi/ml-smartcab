@@ -34,6 +34,7 @@ class LearningAgent(Agent):
             ('directions', self.next_waypoint),
             ('light', inputs['light']),
             ('oncoming', inputs['oncoming']),
+            ('left', inputs['left'])
         )
 
         # Select action according to your policy

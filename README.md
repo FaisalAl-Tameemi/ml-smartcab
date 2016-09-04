@@ -50,15 +50,15 @@ In the current environment, the givens which we can use to determine the state a
 - The traffic `light`
 - The other cars, including `oncoming` traffic as well as from the `left` and `right`
 
-This implementation of the smart agent will build a state from a subset of that the information above. Namely, `next_waypoint` for directions, `light` for traffic light signal and `oncoming` traffic.
+This implementation of the smart agent will build a state from a subset of that the information above. Namely, `next_waypoint` for directions, `light` for traffic light signal, `oncoming` traffic and `left` traffic.
 
 
-_Note:_ This implementation chooses to ignore `right` because we can safely assume that other agents (cars) on the grid will follow the driving rules outlined. While ignoring `left` can cause the agent to learn that taking a left turn on a red light is an permitted action, we will assume that ideally this will rarely happen in the current simulation.
+_Note:_ This implementation chooses to ignore `right` because we can safely assume that other agents (cars) on the grid will follow the driving rules outlined.
 
 
 Also, we choose to leave out the `deadline` from the agent's state since it does not effect the policy in any way. If the environment allowed the learner to do actions such as drive faster when deadline is getting closer to 0 or perhaps an extra reward for maximizing the time remaining in a trip, only then would it effect the outcome and we would include it in the state.
 
-Adding more features to the state will add to the learning time so we will chose to ignore features that are not relevant to the agent's policy. To this point, we can also choose to ignore cars from both ways (`right` and `left`) since there is no penalty for crashing into other cars.
+Adding more features to the state will add to the learning time so we will chose to ignore features that are not relevant to the agent's policy.
 
 In technical terms, adding more information to the state with require us to fill out a larger QTable.
 
@@ -71,16 +71,17 @@ A summary of the values of the agent's state is as follows:
 - Waypoints: the direction could be 'Left', 'Right' or 'Forward'. (3 possible values).
 - Lights: the traffic lights could either be 'green' or 'red'. (2 possible values).
 - Oncoming: is there oncoming traffic. (2 possible values).
+- Left: is there traffic from the left. (2 possible values).
 
 As for the responses the agent can have to its state:
 
 - Actions: the actions the agent can take can be None, 'forward', 'left', 'right'. (4 possible values).
 
-If we multiply each of the following values by each other => `3 x 2 x 4 x 2`, we get __48__. This will constitute all the possible combinations between the state and the actions for our agent to add to its QTable.
+If we multiply each of the following values by each other => `3 x 2 x 2 x 2`, we get __24__.
 
 Looking into the `Environment` class, we notice that it multiplies the distance by 5. Since the distance is always 1 to 12 steps from the agent to its destination. We conclude that the `deadline` is always between 5 to a maximum of 60 (56 possible values).
 
-If we multiply the deadlines possible values => `48 x 56`, we get __2,688__ combinations of state to actions which the agent needs to train for. Note that we can decrease this number to half (__1,344__) by dropping `oncoming` from the state if our environment does not penalize crashes between cars.
+If we multiply the deadlines possible values => `24 x 56`, we get __1,344__ permutations for the state.
 
 ----
 
@@ -186,16 +187,17 @@ While we can get close to the optimal policy, the agent might take certain actio
 State: (
   ('directions', 'forward'),
   ('light', 'red'),
-  ('oncoming', None)
+  ('oncoming', None),
+  ('left', None)
 )
 
 Action: left, Reward: -1.0
 
 Updated Q-Values: {
-  'forward': -0.7593967550529443,
-  'right': -0.02401649949720175,
-  None: 0.37886576707623437,
-  'left': -0.31665649999785694
+  'forward': -0.10312418330591705,
+  'right': -0.12247587505747382,
+  None: 0.8167173591522844,
+  'left': -0.9134070923485762
 }
 ```
 
@@ -205,17 +207,18 @@ Towards to the last trials, the learning agent's QTable contains most states tha
 State: (
   ('directions', 'forward'),
   ('light', 'red'),
-  ('oncoming', None)
+  ('oncoming', None),
+  ('left', None)
 )
 
 Action: None, Reward: 0.0
 
 Updated Q-Values: {
-  'forward': -0.7593967550529443,
-  'right': -0.02401649949720175,
-  None: 0.35587676055551043,
-  'left': -0.7297118611419527
+  'forward': -0.10312418330591705,
+  'right': -0.12247587505747382,
+  None: 0.8167173591522844,
+  'left': -0.21794556479191352
 }
 ```
 
-With this, we conclude that our agent is now capable of reaching a near optimal policy but certain improvements can be made such as implementing a decaying `epsilon` value and adding `left` to the state to avoid odd reactions by the agent for rare states.
+With this, we conclude that our agent is now capable of reaching a near optimal policy but certain improvements can be made such as implementing a decaying `epsilon` value.
